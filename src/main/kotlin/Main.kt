@@ -27,7 +27,7 @@ fun calculateСommission(
 
     if (isLimitExceeded(cardType, amount, oldTransfers)) {
         when (cardType) {
-            "MasterCard", "Maestro" -> if (amount + oldTransfers in 300..75_000) {
+            "MasterCard", "Maestro" -> if ((amount + oldTransfers) < 75_000) {
                 commission = 0
             } else {
                 commission = (amount * 0.006).toInt() + 20
