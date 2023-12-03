@@ -27,25 +27,15 @@ fun calculateСommission(
 
     if (isLimitExceeded(cardType, amount, oldTransfers)) {
         when (cardType) {
-            "MasterCard" -> if (amount < 75_000) {
+            "MasterCard", "Maestro" -> if (amount < 75_000 && (amount + oldTransfers) < 600_000) {   //!!!
                 commission = 0
             } else {
                 commission = (amount * 0.006).toInt() + 20
             }
-            "Maestro" -> if (amount < 75_000) {
-                commission = 0
-            } else {
-                commission = (amount * 0.006).toInt() + 20
-            }
-            "Visa" -> if (amount * 0.75 < 35) {
+            "Visa", "Мир"  -> if (amount * 0.0075 < 35 && (amount + oldTransfers) < 40_000) {
                 commission = 35
             } else {
-                commission = (amount * 0.075).toInt()
-            }
-            "Мир" -> if (amount * 0.75 < 35) {
-                commission = 35
-            } else {
-                commission = (amount * 0.075).toInt()
+                commission = (amount * 0.0075).toInt()
             }
             "VK Pay" -> commission = 0
         }
