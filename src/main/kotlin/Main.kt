@@ -2,33 +2,77 @@ package ru.netology
 
 fun main() {
 
-    calculateСommission("MasterCard", 40_000)
-    calculateСommission("MasterCard", 700_000)
-    calculateСommission("Maestro", 3_000)
-    calculateСommission("Maestro", 900_000)
-    calculateСommission(amount = 1_000_000)
+    calculateСommission("MasterCard", 40_000) // true
+    calculateСommission("MasterCard", 80_000) // true
+    calculateСommission("MasterCard", 100_000, 550_000) // false
+    calculateСommission("Maestro", 3_000) // true
+    calculateСommission("Maestro", 120_000, 100_000) // true
+    calculateСommission("Maestro", 900_000) // false
+    calculateСommission("Visa", 90_000) // true
+    calculateСommission("Visa", 120_000, 500_000) // false
+    calculateСommission("Мир", 110_000) // true
+    calculateСommission("Мир", 110_000, 550_000) // false
+    calculateСommission(amount = 1_000)// true
+    calculateСommission(amount = 1_000_000)// false
 
 }
 
 fun calculateСommission(
     cardType: String = "VK Pay",
     amount: Int,
-    limitAtOneTime: Int = 150_000,
-    oldTransfers: Int = 0,
-    summaryLimit: Int = 600_000
+    oldTransfers: Int = 0
 ) {
 
-    var commission: Int
+    var commission = 0
 
-    if (cardType == "VK Pay") {
-        println("Комиссия для $cardType не взимается")
-    } else {
-        if (amount > limitAtOneTime || amount + oldTransfers > summaryLimit) {
-            commission = (amount * 0.0006).toInt() + 20
-            println("Лимит превышен. Комиссия за перевод для $cardType составляет $commission")
-        } else {
-            println("Комиссия не взимается")
+    if (isLimitExceeded(cardType, amount, oldTransfers)) {
+        when (cardType) {
+            "MasterCard" -> if (amount < 75_000) {
+                commission = 0
+            } else {
+                commission = (amount * 0.006).toInt() + 20
+            }
+            "Maestro" -> if (amount < 75_000) {
+                commission = 0
+            } else {
+                commission = (amount * 0.006).toInt() + 20
+            }
+            "Visa" -> if (amount * 0.75 < 35) {
+                commission = 35
+            } else {
+                commission = (amount * 0.075).toInt()
+            }
+            "Мир" -> if (amount * 0.75 < 35) {
+                commission = 35
+            } else {
+                commission = (amount * 0.075).toInt()
+            }
+            "VK Pay" -> commission = 0
         }
+        println("Комиссия за перевод составляет $commission")
+    }
+}
+
+
+fun isLimitExceeded(cardType: String, amount: Int, oldTransfers: Int): Boolean {
+
+    val limitAtOneTime = 150_000
+    val summaryLimit = 600_000
+
+    val limitAtOneTimeVk = 15_000
+    val summaryLimitVk = 40_000
+
+    if ((cardType == "MasterCard" || cardType == "Maestro" || cardType == "Visa" || cardType == "Мир")
+        && (amount < limitAtOneTime && (amount + oldTransfers) < summaryLimit)
+    ) {
+        return true
+    } else if ((cardType == "VK Pay")
+        && (amount < limitAtOneTimeVk && (amount + oldTransfers) < summaryLimitVk)
+    ) {
+        return true
+    } else {
+        println("Операция отклонена, превышен лимит переводов.")
+        return false
     }
 }
 
